@@ -7,6 +7,8 @@ from quiz_data import quiz_data
 
 router = Router(name=__name__)
 
+correct_answer = 0
+incorrect_answer = 0
 
 def generate_options_keyboard(answer_options, right_answer):
     builder = InlineKeyboardBuilder()
@@ -23,7 +25,8 @@ def generate_options_keyboard(answer_options, right_answer):
 
 @router.callback_query(F.data == "right_answer")
 async def right_answer(callback: types.CallbackQuery):
-
+    global correct_answer
+    correct_answer += 1
     await callback.bot.edit_message_reply_markup(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
@@ -48,6 +51,8 @@ async def right_answer(callback: types.CallbackQuery):
 
 @router.callback_query(F.data == "wrong_answer")
 async def wrong_answer(callback: types.CallbackQuery):
+    global incorrect_answer
+    incorrect_answer += 1
     await callback.bot.edit_message_reply_markup(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
@@ -108,7 +113,10 @@ async def stat(message):
     len_of_questions = len(quiz_data)
     builder = ReplyKeyboardBuilder()
     builder.add(types.KeyboardButton(text="Продолжить квиз"))
-    await message.answer(f"Ваш текущий процесс: {current_question_index / len_of_questions * 100}% квиза пройдено!", reply_markup=builder.as_markup(resize_keyboard=True))
+    await message.answer(f"Ваш текущий процесс: {current_question_index / len_of_questions * 100}% квиза пройдено!\n"
+                         f"Правильных ответов: {correct_answer} 😃\n"
+                         f"Неправильных ответов: {incorrect_answer} ☹️",
+                         reply_markup=builder.as_markup(resize_keyboard=True))
 
 
 @router.message(F.text == "Продолжить квиз")
