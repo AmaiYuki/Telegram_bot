@@ -41,7 +41,7 @@ async def right_answer(callback: types.CallbackQuery):
     await callback.message.answer(f"✅ Верно! Это {quiz_data[current_question_index]['options'][correct_option]}", reply_markup=builder.as_markup(resize_keyboard=True))
     # Обновление номера текущего вопроса в базе данных
     current_question_index += 1
-    await update_quiz_index(callback.from_user.id, current_question_index)
+    await update_quiz_index(callback.from_user.id, current_question_index, correct_answer, incorrect_answer)
 
     if current_question_index < len(quiz_data):
         await get_question(callback.message, callback.from_user.id)
@@ -69,7 +69,7 @@ async def wrong_answer(callback: types.CallbackQuery):
 
     # Обновление номера текущего вопроса в базе данных
     current_question_index += 1
-    await update_quiz_index(callback.from_user.id, current_question_index)
+    await update_quiz_index(callback.from_user.id, current_question_index, correct_answer, incorrect_answer)
 
     if current_question_index < len(quiz_data):
         await get_question(callback.message, callback.from_user.id)
@@ -104,7 +104,7 @@ async def cmd_save(message: types.Message):
 async def save(message):
     user_id = message.from_user.id
     current_question_index = await get_quiz_index(user_id)
-    await update_quiz_index(user_id, current_question_index)
+    await update_quiz_index(user_id, current_question_index, correct_answer, incorrect_answer)
 
 
 async def stat(message):
@@ -139,5 +139,9 @@ async def get_question(message, user_id):
 async def new_quiz(message):
     user_id = message.from_user.id
     current_question_index = 0
-    await update_quiz_index(user_id, current_question_index)
+    global correct_answer
+    global incorrect_answer
+    correct_answer = 0
+    incorrect_answer = 0
+    await update_quiz_index(user_id, current_question_index, correct_answer, incorrect_answer)
     await get_question(message, user_id)

@@ -7,7 +7,7 @@ async def create_table():
     # Создаем соединение с базой данных (если она не существует, она будет создана)
     async with aiosqlite.connect(DB_NAME) as db:
         # Создаем таблицу
-        await db.execute('''CREATE TABLE IF NOT EXISTS quiz_state (user_id INTEGER PRIMARY KEY, question_index INTEGER)''')
+        await db.execute('''CREATE TABLE IF NOT EXISTS quiz_state (user_id INTEGER PRIMARY KEY, question_index INTEGER, correct_answer INTEGER, incorrect_answer INTEGER)''')
         # Сохраняем изменения
         await db.commit()
 
@@ -25,10 +25,10 @@ async def get_quiz_index(user_id):
                 return 0
 
 
-async def update_quiz_index(user_id, index):
+async def update_quiz_index(user_id, index, correct_answer, incorrect_answer):
     # Создаем соединение с базой данных (если она не существует, она будет создана)
     async with aiosqlite.connect(DB_NAME) as db:
         # Вставляем новую запись или заменяем ее, если с данным user_id уже существует
-        await db.execute('INSERT OR REPLACE INTO quiz_state (user_id, question_index) VALUES (?, ?)', (user_id, index))
+        await db.execute('INSERT OR REPLACE INTO quiz_state (user_id, question_index, correct_answer, incorrect_answer) VALUES (?, ?, ?, ?)', (user_id, index, correct_answer, incorrect_answer))
         # Сохраняем изменения
         await db.commit()
